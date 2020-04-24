@@ -1,0 +1,165 @@
+/*
+ * circularQ.c
+ *
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_QUEUE_SIZE 4
+
+typedef char element;//사용자에게 문자를 받아옴
+typedef struct {//원형 큐 정보를 저장할 구조체
+ element queue[MAX_QUEUE_SIZE];//요소들을 저장
+ int front, rear;//front와 rear값을 저장한다
+}QueueType;//구조체 이름
+
+
+QueueType *createQueue();//구조체 생성
+int isEmpty(QueueType *cQ);//비어있는지 확인해줄 함수
+int isFull(QueueType *cQ);//차있는지 확인해줄 함수
+void enQueue(QueueType *cQ, element item);//요소 추가해줄 함수
+void deQueue(QueueType *cQ, element* item);//요소를 빼줄 함수
+void printQ(QueueType *cQ);//원형 큐 출력
+void debugQ(QueueType *cQ);//원형 큐 디버깅
+
+element getElement();//요소를 받아온다.
+
+
+int main(void)
+{
+ QueueType *cQ = createQueue();//구조체 생성
+ element data;
+
+ char command;//문자 변수
+
+ do{printf("-------2019038038 한서영-------------\n");
+  printf("\n-----------------------------------------------------\n");
+  printf("                     Circular Q                   \n");
+  printf("------------------------------------------------------\n");
+  printf(" Insert=i,  Delete=d,   PrintQ=p,   Dubug=b,   Quit=q \n");
+  printf("------------------------------------------------------\n");
+
+  printf("Command = ");
+  scanf(" %c", &command);//문자 하나를 입력받음
+
+  switch(command) {//문자에 따라 정해지는 switch문
+  case 'i': case 'I'://i나 I인 경우
+   data = getElement();//데이터 입력받음
+   enQueue(cQ, data);//데이터를 추가해주는 함수 호출
+   break;
+  case 'd': case 'D'://d나 D인 경우
+   deQueue(cQ,&data);//데이터를 삭제해줄 함수 호출
+   break;
+  case 'p': case 'P'://p나P인 경우
+   printQ(cQ);//원형 큐 출력 함수 호출
+   break;
+  case 'b': case 'B'://b나 B인 경우
+   debugQ(cQ);//원형 큐 디버깅
+   break;
+  case 'q': case 'Q'://q나 Q인 경우
+   free(cQ);//동적 할당  해제
+   break;
+  default://그 외의 경우
+   printf("\n       >>>>>   Concentration!!   <<<<<     \n");//오류 출력
+   break;
+  }
+
+ }while(command != 'q' && command != 'Q');//q나 Q가 입력될 때까지 반복
+
+
+ return 1;
+}
+
+
+QueueType *createQueue()
+{//원형 큐 생성 함수
+ QueueType *cQ;//cQ 포인터 
+ cQ = (QueueType *)malloc(sizeof(QueueType));//동적 할당을 통해 크기 정해줌
+ cQ->front = 0;//front에 0값 
+ cQ->rear = 0;//rear에 0값 대입
+ return cQ;//cQ 반환
+}
+
+element getElement()//사용자에게 문자 입력 받음
+{
+ element item;//아이템 선언
+ printf("Input element = ");
+ scanf(" %c", &item);//입력 받음
+ return item;//입력 받은 값 반환
+}
+
+
+int isEmpty(QueueType *cQ)//원형 큐가 비어있는지 확인
+{
+ if (cQ->front == cQ->rear)//만약 front와 rear의 값이 같으면 큐는 비어있음
+    return 0;
+}
+
+/* complete the function */
+int isFull(QueueType *cQ)//큐가 차있는지 확인
+{
+ if (cQ->front == ((cQ->rear + 1) % MAX_QUEUE_SIZE))//만약 큐의 front와 rear+1의 값을 나눈 수가 같다면 큐는 모두 차있음
+   return 0;
+}
+
+
+/* complete the function */
+void enQueue(QueueType *cQ, element item)//원형 큐에 추가
+{
+ if (cQ->front == ((cQ->rear + 1) % MAX_QUEUE_SIZE))//큐가 차있는지 검사
+  isFull(cQ);
+ else
+ {
+  cQ->rear = (cQ->rear + 1) % MAX_QUEUE_SIZE;//현재 rear값을 +1해주고
+  cQ->queue[cQ->rear] = item;//저장함
+ }
+}
+
+/* complete the function */
+void deQueue(QueueType *cQ, element *item)//큐를 지움
+{
+ if (cQ->front == cQ->rear)//큐가 비어있는지 검사
+  isEmpty(cQ);
+ else
+ {
+  cQ->front = (cQ->front +1 ) % MAX_QUEUE_SIZE;//front+1해줌
+ }
+
+}
+
+
+void printQ(QueueType *cQ)//원형 큐를 프린트 해줄 함수
+{
+ int i, first, last;
+
+ first = (cQ->front + 1)%MAX_QUEUE_SIZE;//첫번 째 값은 front+1 나누기 4
+ last = (cQ->rear + 1)%MAX_QUEUE_SIZE;//마지막 값은 rear+1나누기 4
+
+ printf("Circular Queue : [");
+
+ i = first;
+ while(i != last){//i가 마지막 값이랑 같아지면 종료
+  printf("%3c", cQ->queue[i]);//원형 큐 안의 값 출력
+  i = (i+1)%MAX_QUEUE_SIZE;//i의 값을 다음으로 넘겨줌
+
+ }
+ printf(" ]\n");
+}
+
+
+void debugQ(QueueType *cQ)//배열을 디버깅할 함수
+{
+
+ printf("\n---DEBUG\n");
+ for(int i = 0; i < MAX_QUEUE_SIZE; i++)//4번 실행
+ {
+  if(i == cQ->front) {//만약 front값과 i 값이 같으면 front 출력
+   printf("  [%d] = front\n", i);
+   continue;
+  }
+  printf("  [%d] = %c\n", i, cQ->queue[i]);//아니라면 일반 값 출력
+
+ }
+ printf("front = %d, rear = %d\n", cQ->front, cQ->rear);//rear의 위치 출력
+}
